@@ -1,16 +1,113 @@
 [project]
 name = "backend"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "File exchange service - upload, scan and alert pipeline"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "alembic>=1.18.4",
+    "anyio>=4.6.0",
     "asyncpg>=0.30.0",
     "celery[redis]>=5.6.3",
     "fastapi>=0.135.3",
     "pydantic>=2.12.5",
+    "pydantic-settings>=2.7.0",
     "python-multipart>=0.0.20",
-    "sqlalchemy>=2.0.48",
+    # the [asyncio] extra pulls in greenlet, without which every async query
+    # raises "the greenlet library is required"
+    "sqlalchemy[asyncio]>=2.0.48",
     "uvicorn>=0.42.0",
 ]
+
+[dependency-groups]
+dev = [
+    "aiosqlite>=0.20.0",
+    "httpx>=0.28.1",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.14.0",
+    "ty>=0.0.1a14",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+# The service is run from the source tree, not installed as a distribution.
+package = false
+
+# ---------------------------------------------------------------------------
+# ruff
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+src = ["src", "tests"]
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = [
+    "F",      # pyflakes
+    "E", "W", # pycodestyle
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "ANN",    # flake8-annotations
+    "ASYNC",  # flake8-async
+    "S",      # flake8-bandit
+    "B",      # flake8-bugbear
+    "A",      # flake8-builtins
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "T20",    # flake8-print
+    "PT",     # flake8-pytest-style
+    "SIM",    # flake8-simplify
+    "TID",    # flake8-tidy-imports
+    "PTH",    # flake8-use-pathlib
+    "PL",     # pylint
+    "PERF",   # perflint
+    "RUF",
+]
+ignore = [
+    "ANN401",  # Any is required by a few adapter signatures
+    "PLR0913", # use cases legitimately take several collaborators
+    "S104",    # binding 0.0.0.0 inside a container is intentional
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S311", "ANN", "PLR2004"]
+"migrations/**" = ["ANN", "E501", "I001"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests"]
+
+[tool.ruff.format]
+line-ending = "lf"
+
+# ---------------------------------------------------------------------------
+# ty (Astral's type checker)
+# ---------------------------------------------------------------------------
+[tool.ty.environment]
+python-version = "3.14"
+# Imports are absolute from the project root ("src.domain...."), so the root
+# is the directory that *contains* the src package.
+root = ["."]
+
+[tool.ty.src]
+include = ["src", "tests"]
+exclude = ["migrations/versions"]
+
+[tool.ty.rules]
+unresolved-import = "error"
+unresolved-attribute = "error"
+invalid-return-type = "error"
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-q"

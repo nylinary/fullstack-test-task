@@ -11,3 +11,7 @@ wheels/
 .idea
 **/.DS_Store
 backend/storage/*
+# Tooling caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/

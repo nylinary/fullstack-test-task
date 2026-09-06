@@ -15,6 +15,73 @@
 2. ```docker exec -it backend alembic upgrade head```
 
 
-**Открыть фронт:** ```http://localhost:3000/test``` 
+**Открыть фронт:** ```http://localhost:3000/test```
 
 **Открыть бэк:** ```http://localhost:8000/docs```
+
+---
+
+# Решение
+
+Внешнее поведение API сохранено: те же маршруты, те же поля ответов, те же
+статусы и тексты алертов.
+
+## 1. Архитектура бэкенда — clean architecture
+
+Зависимости направлены только внутрь: `presentation → application → domain`,
+инфраструктура подключается через порты. `src/container.py` — composition root,
+единственный модуль, знающий про все слои сразу.
+
+```
+src/
+  domain/          сущности, value objects, доменные сервисы, порты   (только stdlib)
+  application/     use cases, DTO, порты приложения                   (→ domain)
+  infrastructure/  SQLAlchemy, Celery, локальное хранилище, настройки (→ domain, application)
+  presentation/    FastAPI: роутеры, схемы, обработчики ошибок
+  container.py     сборка зависимостей
+```
+
+Сущности — обычные dataclass'ы без единого импорта фреймворка, положенные в
+таблицы через imperative mapping SQLAlchemy: чистый домен без дублирования
+моделей. Правило зависимостей не только описано, но и проверяется тестом
+`tests/unit/test_architecture.py`.
+
+Подробности, полный список найденных багов (14 штук) и разбор оптимизаций —
+в [backend/README.md](backend/README.md).
+
+## 2. Неочевидная оптимизация
+
+Файл трижды целиком загружался в память: `await upload_file.read()` при
+загрузке, затем `read_text()` / `read_bytes()` в задаче извлечения метаданных —
+ради подсчёта строк, символов и маркеров страниц PDF. Пиковая память росла
+линейно с размером файла.
+
+Теперь всё читается потоком по 1 МБ, а счётчики переписаны так, чтобы результат
+побайтово совпадал с прежним при любой нарезке на чанки (включая `\r\n` на стыке
+и все десять символов-разделителей строк Python). Это проверено тестами на
+случайных входных данных.
+
+Дополнительно: цепочка из трёх Celery-задач свёрнута в один вызов с одной сессией
+(было 3 обращения к брокеру и 3 SELECT'а на загрузку), добавлены индексы под
+запросы списков и внешний ключ, один event loop на процесс воркера, отдача
+файлов через `sendfile`.
+
+## 3. Слои фронтенда
+
+`page.tsx` на 400 строк разбит по Feature-Sliced Design:
+`app → views → widgets → features → entities → shared`. Подробности —
+в [frontend/README.md](frontend/README.md).
+
+## Проверки
+
+```bash
+cd backend
+uv run ruff check .           # линтер
+uv run ruff format --check .  # форматирование
+uv run ty check src tests     # типы
+uv run pytest                 # 99 тестов, без Postgres и Redis
+
+cd ../frontend
+npm run typecheck
+npm run build
+```
