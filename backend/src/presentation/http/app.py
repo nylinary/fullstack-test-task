@@ -1,4 +1,4 @@
-"""FastAPI application factory."""
+"""Фабрика приложения FastAPI."""
 
 import logging
 from collections.abc import AsyncIterator

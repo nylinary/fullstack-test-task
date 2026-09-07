@@ -1,4 +1,4 @@
-"""Decides which alert a processed file deserves."""
+"""Решает, какого алерта заслуживает обработанный файл."""
 
 from src.domain.entities import Alert, StoredFile
 from src.domain.value_objects import AlertLevel

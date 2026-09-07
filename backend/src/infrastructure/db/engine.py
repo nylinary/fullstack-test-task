@@ -1,9 +1,9 @@
-"""Engine and session factory construction."""
+"""Создание engine и фабрики сессий."""
 
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 
 from src.infrastructure.config import Settings
-from src.infrastructure.db import tables  # noqa: F401 - registers the imperative mappings
+from src.infrastructure.db import tables  # noqa: F401 - регистрирует imperative-маппинги
 
 
 def create_engine(settings: Settings) -> AsyncEngine:

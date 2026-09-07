@@ -1,7 +1,7 @@
 """Composition root.
 
-The only module allowed to know about every layer at once: it wires concrete
-adapters into the use cases.  Everything else depends on abstractions.
+Единственный модуль, которому позволено знать про все слои сразу: он подставляет
+конкретные адаптеры в use case'ы. Всё остальное зависит от абстракций.
 """
 
 from dataclasses import dataclass
@@ -68,7 +68,7 @@ class Container:
     def unit_of_work(self) -> UnitOfWork:
         return SqlAlchemyUnitOfWork(self.session_factory)
 
-    # --- use cases -------------------------------------------------------
+    # --- use case'ы ------------------------------------------------------
 
     def upload_file(self) -> UploadFileUseCase:
         return UploadFileUseCase(
@@ -112,5 +112,5 @@ class Container:
 
 @lru_cache(maxsize=1)
 def get_container() -> Container:
-    """Process-wide singleton: one engine and one connection pool per process."""
+    """Синглтон на процесс: один engine и один пул соединений на процесс."""
     return Container(settings=get_settings())

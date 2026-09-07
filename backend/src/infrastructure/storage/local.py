@@ -1,8 +1,8 @@
-"""Filesystem-backed implementation of the :class:`~src.domain.storage.FileStorage` port.
+"""Реализация порта :class:`~src.domain.storage.FileStorage` поверх файловой системы.
 
-Every operation is awaited off the event loop (``anyio``), so a slow disk can no
-longer stall the whole API process the way the previous blocking
-``Path.write_bytes`` / ``Path.exists`` calls did.
+Каждая операция уходит с event loop'а (через ``anyio``), поэтому медленный диск
+больше не может застопорить весь процесс API — как это делали прежние
+блокирующие ``Path.write_bytes`` и ``Path.exists``.
 """
 
 import logging
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class UnsafeStoredNameError(ValueError):
-    """Raised when a stored name would resolve outside the storage root."""
+    """Бросается, когда имя объекта разрешается за пределы корня хранилища."""
 
 
 class LocalFileStorage:
@@ -47,8 +47,8 @@ class LocalFileStorage:
         try:
             await anyio.Path(self._resolve(stored_name)).unlink(missing_ok=True)
         except OSError:
-            # Losing a blob must not fail the surrounding transaction; the row
-            # is already gone and the leftover is visible in the logs.
+            # Неудача при удалении файла не должна ронять внешнюю транзакцию:
+            # строка уже удалена, а остаток на диске виден в логах.
             logger.exception("Could not delete stored file %s", stored_name)
 
     async def exists(self, stored_name: str) -> bool:

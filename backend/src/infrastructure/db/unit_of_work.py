@@ -1,4 +1,4 @@
-"""Transactional scope backed by an ``AsyncSession``."""
+"""Транзакционная область поверх ``AsyncSession``."""
 
 from types import TracebackType
 
@@ -9,10 +9,10 @@ from src.infrastructure.db.repositories import SqlAlchemyAlertRepository, SqlAlc
 
 
 class SqlAlchemyUnitOfWork:
-    """One session, one transaction, both repositories.
+    """Одна сессия, одна транзакция, оба репозитория.
 
-    Leaving the ``async with`` block without committing rolls the transaction
-    back, so a failing use case can never half-persist an aggregate.
+    Выход из блока ``async with`` без коммита откатывает транзакцию, поэтому
+    упавший use case не может сохранить агрегат наполовину.
     """
 
     files: FileRepository
@@ -39,10 +39,10 @@ class SqlAlchemyUnitOfWork:
             if exc_type is not None and session.in_transaction():
                 await session.rollback()
         finally:
-            # ``close()`` releases the connection, which discards anything that
-            # was not committed, and - unlike ``rollback()`` - leaves the loaded
-            # entities readable after they are detached.  Use cases return
-            # entities to the caller, so that difference matters.
+            # ``close()`` возвращает соединение в пул, отбрасывая всё
+            # незакоммиченное, и — в отличие от ``rollback()`` — оставляет
+            # загруженные сущности читаемыми после отвязки от сессии. Use case'ы
+            # возвращают сущности наружу, так что разница существенна.
             await session.close()
             self._session = None
 

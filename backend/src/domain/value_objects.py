@@ -1,7 +1,7 @@
-"""Value objects shared across the domain.
+"""Value objects, общие для всего домена.
 
-The string values are part of the persisted contract (they are stored verbatim
-in Postgres and returned by the public API), so they must not be renamed.
+Строковые значения — часть контракта хранения: они лежат в Postgres как есть и
+возвращаются публичным API, поэтому переименовывать их нельзя.
 """
 
 from enum import StrEnum

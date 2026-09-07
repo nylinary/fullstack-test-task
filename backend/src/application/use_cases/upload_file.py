@@ -1,4 +1,4 @@
-"""Upload a file, persist its record and schedule asynchronous processing."""
+"""Загрузить файл, сохранить его запись и поставить асинхронную обработку в очередь."""
 
 import logging
 from collections.abc import AsyncIterator
@@ -32,8 +32,8 @@ class UploadFileUseCase:
         self._id_generator = id_generator
 
     async def execute(self, command: UploadFileCommand) -> StoredFile:
-        # Validate before touching storage: a rejected command must not leave a
-        # blob behind.
+        # Проверяем до обращения к хранилищу: отклонённая команда не должна
+        # оставлять за собой файл на диске.
         title = StoredFile.normalize_title(command.title)
 
         file_id = self._id_generator()
@@ -56,7 +56,7 @@ class UploadFileUseCase:
                 await uow.files.add(file)
                 await uow.commit()
         except Exception:
-            # Never leave an orphan blob behind when the row could not be written.
+            # Не оставляем осиротевший файл, если строку записать не удалось.
             await self._storage.delete(stored_name)
             raise
 
@@ -64,7 +64,7 @@ class UploadFileUseCase:
         return file
 
     async def _store_content(self, stored_name: str, chunks: AsyncIterator[bytes]) -> int:
-        """Stream the upload straight to storage, enforcing the size cap as it goes."""
+        """Писать загрузку прямо в хранилище потоком, попутно следя за лимитом размера."""
         try:
             size = await self._storage.save(stored_name, self._capped(chunks))
         except Exception:
@@ -77,7 +77,7 @@ class UploadFileUseCase:
         return size
 
     async def _capped(self, chunks: AsyncIterator[bytes]) -> AsyncIterator[bytes]:
-        """Abort as soon as the stream exceeds the limit instead of buffering it all."""
+        """Оборвать поток сразу, как только он превысит лимит, а не буферизовать целиком."""
         written = 0
         async for chunk in chunks:
             written += len(chunk)

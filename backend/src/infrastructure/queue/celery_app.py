@@ -1,4 +1,4 @@
-"""Celery application used by the worker and by the producing API process."""
+"""Приложение Celery, общее для воркера и для процесса API, который ставит задачи."""
 
 from celery import Celery
 

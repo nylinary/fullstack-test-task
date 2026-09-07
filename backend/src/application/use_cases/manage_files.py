@@ -1,4 +1,4 @@
-"""Read and lifecycle use cases for stored files and alerts."""
+"""Use case'ы чтения и жизненного цикла для файлов и алертов."""
 
 from src.application.dto import FileDownload, Page
 from src.domain.entities import Alert, StoredFile
@@ -63,9 +63,9 @@ class DeleteFileUseCase:
             file = await _require_file(uow, file_id)
             stored_name = file.stored_name
             await uow.files.delete(file)
-            # The row is dropped first: if the transaction fails we still have
-            # the blob, whereas the original order could destroy the content of
-            # a file that remained listed in the database.
+            # Сначала удаляется строка: если транзакция упадёт, файл на диске
+            # останется. Исходный порядок мог уничтожить содержимое файла,
+            # который при этом остался в базе.
             await uow.commit()
 
         await self._storage.delete(stored_name)

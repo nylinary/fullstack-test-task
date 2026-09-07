@@ -1,17 +1,17 @@
-"""Domain-level errors.
+"""Ошибки доменного уровня.
 
-The domain never knows about HTTP, Celery or SQLAlchemy, so it raises its own
-exceptions.  The presentation layer is responsible for translating them into
-transport-specific responses (see ``src.presentation.http.error_handlers``).
+Домен ничего не знает про HTTP, Celery и SQLAlchemy, поэтому бросает собственные
+исключения. Переводить их в ответы конкретного транспорта — задача слоя
+представления (см. ``src.presentation.http.error_handlers``).
 """
 
 
 class DomainError(Exception):
-    """Base class for every error the domain can raise."""
+    """Базовый класс для всех ошибок, которые может бросить домен."""
 
 
 class NotFoundError(DomainError):
-    """A requested aggregate does not exist."""
+    """Запрошенный агрегат не существует."""
 
 
 class StoredFileNotFoundError(NotFoundError):
@@ -27,7 +27,7 @@ class StoredContentNotFoundError(NotFoundError):
 
 
 class ValidationError(DomainError):
-    """The command violates a business rule."""
+    """Команда нарушает бизнес-правило."""
 
 
 class EmptyFileError(ValidationError):

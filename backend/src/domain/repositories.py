@@ -1,8 +1,7 @@
-"""Persistence ports.
+"""Порты хранения.
 
-Declared in the domain and implemented in the infrastructure layer, so the
-dependency arrow points inwards: use cases depend on these protocols, never on
-SQLAlchemy.
+Объявлены в домене, реализованы в инфраструктуре — стрелка зависимости смотрит
+внутрь: use case'ы зависят от этих протоколов, а не от SQLAlchemy.
 """
 
 from types import TracebackType
@@ -28,10 +27,10 @@ class AlertRepository(Protocol):
 
 
 class UnitOfWork(Protocol):
-    """A transactional scope grouping the repositories.
+    """Транзакционная область, объединяющая репозитории.
 
-    Used as an async context manager; leaving the block without an explicit
-    :meth:`commit` rolls back.
+    Используется как асинхронный контекстный менеджер: выход из блока без явного
+    :meth:`commit` откатывает изменения.
     """
 
     files: FileRepository

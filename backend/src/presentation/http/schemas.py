@@ -1,8 +1,8 @@
-"""Transport models.
+"""Транспортные модели.
 
-Deliberately separate from the domain entities: the wire format is a contract
-with the frontend and must be free to evolve independently of the business
-model.  The field set is unchanged from the original API.
+Намеренно отделены от доменных сущностей: формат на проводе — это контракт с
+фронтендом, и он должен меняться независимо от бизнес-модели. Набор полей
+совпадает с исходным API.
 """
 
 from datetime import datetime

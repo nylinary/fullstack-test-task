@@ -1,4 +1,4 @@
-"""ASGI entrypoint (``uvicorn src.app:app``)."""
+"""Точка входа ASGI (``uvicorn src.app:app``)."""
 
 from src.presentation.http.app import create_app
 

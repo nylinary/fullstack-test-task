@@ -1,8 +1,8 @@
-"""Translates domain errors into HTTP responses.
+"""Переводит доменные ошибки в HTTP-ответы.
 
-Keeping this mapping in one place is what lets the use cases stay free of
-``HTTPException`` - previously the persistence layer raised HTTP errors, which
-made it unusable from the Celery worker.
+Именно то, что этот маппинг собран в одном месте, позволяет use case'ам
+обходиться без ``HTTPException``: раньше HTTP-ошибки бросал слой доступа к
+данным, из-за чего он был непригоден для Celery-воркера.
 """
 
 import logging

@@ -8,8 +8,8 @@ import { toMessage } from "@/shared/api/http";
 type Options = { onUploaded: () => Promise<void> | void };
 
 /**
- * Owns the upload form state and the submit workflow; the modal below is a
- * pure rendering of what this hook exposes.
+ * Держит состояние формы загрузки и сценарий отправки; модалка ниже — чистая
+ * отрисовка того, что отдаёт этот хук.
  */
 export function useUploadFile({ onUploaded }: Options) {
   const [isOpen, setIsOpen] = useState(false);

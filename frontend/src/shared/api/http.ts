@@ -22,8 +22,8 @@ async function readErrorMessage(response: Response, fallback: string): Promise<s
 }
 
 /**
- * The single place that knows how this API reports failures, so no caller has
- * to remember to check `response.ok`.
+ * Единственное место, которое знает, как этот API сообщает об ошибках, — чтобы
+ * ни одному вызывающему коду не приходилось помнить про `response.ok`.
  */
 export async function request<T>(
   path: string,

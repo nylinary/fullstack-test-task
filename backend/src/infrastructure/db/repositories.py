@@ -1,4 +1,4 @@
-"""SQLAlchemy implementations of the domain repository ports."""
+"""Реализации доменных портов репозиториев на SQLAlchemy."""
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,8 +20,8 @@ class SqlAlchemyFileRepository:
     async def list_recent(self, *, limit: int, offset: int) -> list[StoredFile]:
         stmt = (
             select(StoredFile)
-            # ``id`` breaks ties so that paging cannot show or skip a row twice
-            # when several uploads share a timestamp.
+            # ``id`` разрешает ничьи, чтобы при одинаковых метках времени
+            # пагинация не показала и не пропустила строку дважды.
             .order_by(files_table.c.created_at.desc(), files_table.c.id.desc())
             .limit(limit)
             .offset(offset)

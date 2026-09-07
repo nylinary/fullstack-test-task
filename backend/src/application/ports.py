@@ -1,15 +1,15 @@
-"""Application-level ports for outbound infrastructure."""
+"""Порты уровня приложения к внешней инфраструктуре."""
 
 from typing import Protocol
 
 
 class FileProcessingQueue(Protocol):
-    """Hands a freshly uploaded file over to the asynchronous pipeline."""
+    """Передаёт только что загруженный файл в асинхронный конвейер."""
 
     async def enqueue_processing(self, file_id: str) -> None: ...
 
 
 class IdGenerator(Protocol):
-    """Supplies identifiers for new aggregates (injected so tests stay deterministic)."""
+    """Выдаёт идентификаторы для новых агрегатов (внедряется, чтобы тесты оставались детерминированными)."""
 
     def __call__(self) -> str: ...

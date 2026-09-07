@@ -11,8 +11,8 @@ import { toMessage } from "@/shared/api/http";
 import { PROCESSING_POLL_INTERVAL_MS } from "@/shared/config/env";
 
 /**
- * All of the dashboard's data flow lives here, so the components below stay
- * declarative: they render what they are given and raise events.
+ * Весь поток данных дашборда живёт здесь, поэтому компоненты ниже остаются
+ * декларативными: они рисуют то, что им дали, и порождают события.
  */
 export function useFilesDashboard() {
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -56,9 +56,10 @@ export function useFilesDashboard() {
     void load();
   }, [load]);
 
-  // Processing happens in a Celery worker, so a freshly uploaded file reaches
-  // its final status a moment after the upload response. Refresh quietly until
-  // everything has settled instead of making the user press "Обновить".
+  // Обработка идёт в воркере Celery, поэтому только что загруженный файл
+  // доходит до финального статуса чуть позже ответа на загрузку. Тихо обновляем
+  // данные, пока всё не устоится, вместо того чтобы заставлять пользователя
+  // жать "Обновить".
   const hasPending = files.some(isPending);
   useEffect(() => {
     if (!hasPending) {

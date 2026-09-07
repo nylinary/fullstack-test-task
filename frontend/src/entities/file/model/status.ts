@@ -16,7 +16,7 @@ export function getScanVariant(file: FileItem): BadgeVariant {
   return file.requires_attention ? "warning" : "success";
 }
 
-/** A file the backend is still working on; the dashboard keeps polling these. */
+/** Файл, над которым бэкенд ещё работает; такие дашборд продолжает опрашивать. */
 export function isPending(file: FileItem): boolean {
   return file.processing_status !== "processed" && file.processing_status !== "failed";
 }

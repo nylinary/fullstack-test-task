@@ -1,13 +1,13 @@
-"""Domain entities.
+"""Доменные сущности.
 
-These are plain dataclasses: no SQLAlchemy, Pydantic or FastAPI imports.  They
-are persisted through SQLAlchemy's *imperative* mapping
-(:mod:`src.infrastructure.db.mapping`), which keeps the domain free of ORM
-concerns while still avoiding a hand-written entity <-> row mapper.
+Это обычные dataclass'ы: ни SQLAlchemy, ни Pydantic, ни FastAPI. В базу они
+кладутся через *imperative* mapping SQLAlchemy
+(:mod:`src.infrastructure.db.tables`) — домен остаётся свободным от ORM, и при
+этом не нужен ручной маппер «сущность <-> строка».
 
-All state transitions live here as methods, so the rules ("a failed file
-requires attention", "renaming trims the title") cannot be bypassed by a caller
-that pokes at the attributes directly.
+Все переходы состояний живут здесь в виде методов, поэтому правила («упавший
+файл требует внимания», «переименование обрезает пробелы») нельзя обойти,
+присвоив атрибут напрямую.
 """
 
 from dataclasses import dataclass, field
@@ -24,20 +24,20 @@ MAX_ALERT_MESSAGE_LENGTH = 500
 
 @dataclass
 class ScanReport:
-    """Outcome of a threat scan, produced by :class:`~src.domain.services.threat_scanner.ThreatScanner`."""
+    """Результат проверки, который выдаёт :class:`~src.domain.services.threat_scanner.ThreatScanner`."""
 
     status: ScanStatus
     details: str
     requires_attention: bool
 
 
-# ``eq=False`` keeps identity-based equality/hashing: entities are identified by
-# their id, and SQLAlchemy's identity map requires hashable instances.
-# ``repr=False`` avoids touching every attribute (and triggering a lazy load)
-# from a log statement.
+# ``eq=False`` оставляет сравнение и хеширование по идентичности: сущность
+# определяется своим id, а identity map SQLAlchemy требует хешируемых объектов.
+# ``repr=False`` не даёт логированию задеть все атрибуты сразу (и спровоцировать
+# ленивую загрузку).
 @dataclass(eq=False, repr=False)
 class StoredFile:
-    """An uploaded file together with its processing state."""
+    """Загруженный файл вместе с состоянием его обработки."""
 
     id: str
     title: str
@@ -70,8 +70,8 @@ class StoredFile:
 
     def mark_failed(self, reason: str) -> None:
         self.processing_status = ProcessingStatus.FAILED
-        # A file that already carries a scan verdict keeps it; otherwise the
-        # scan is considered failed as well.
+        # Файл, у которого уже есть вердикт сканера, сохраняет его; иначе
+        # сканирование тоже считается провалившимся.
         self.scan_status = self.scan_status or ScanStatus.FAILED
         self.scan_details = reason[:MAX_SCAN_DETAILS_LENGTH]
 
@@ -81,6 +81,11 @@ class StoredFile:
 
     @staticmethod
     def normalize_title(title: str) -> str:
+        """Обрезать и проверить название.
+
+        Публичный метод: вызывающий код может упасть до того, как начнёт дорогую
+        работу вроде записи файла на диск.
+        """
         cleaned = title.strip()
         if not cleaned:
             raise ValidationError("Title must not be empty")
@@ -92,7 +97,7 @@ class StoredFile:
     def create(
         cls,
         *,
-        id: str,  # noqa: A002 - mirrors the persisted column name
+        id: str,  # noqa: A002 - повторяет имя колонки в базе
         title: str,
         original_name: str,
         stored_name: str,
@@ -112,7 +117,7 @@ class StoredFile:
 
 @dataclass(eq=False, repr=False)
 class Alert:
-    """A notification emitted about a file at the end of the processing pipeline."""
+    """Уведомление о файле, выпускаемое в конце конвейера обработки."""
 
     file_id: str
     level: AlertLevel

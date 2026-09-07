@@ -1,25 +1,25 @@
-"""Filename helpers shared by the domain and the storage adapters."""
+"""Помощники для работы с именами файлов, общие для домена и адаптеров хранилища."""
 
 import mimetypes
 from pathlib import PurePosixPath, PureWindowsPath
 
-# Everything that could let a crafted upload name escape the storage directory
-# or poison a Content-Disposition header.
+# Всё, чем подобранное имя файла могло бы вырваться за пределы директории
+# хранилища или испортить заголовок Content-Disposition.
 _UNSAFE_CHARS = str.maketrans({"\r": "_", "\n": "_", "\x00": "_", '"': "_"})
 MAX_FILENAME_LENGTH = 255
 
 
 def file_extension(name: str) -> str:
-    """Return the lower-cased extension of ``name`` (``".pdf"``, or ``""``).
+    """Вернуть расширение ``name`` в нижнем регистре (``".pdf"`` или ``""``).
 
-    Accepts both POSIX and Windows separators because the value comes straight
-    from a browser's multipart payload.
+    Понимает и POSIX-, и Windows-разделители: значение приходит прямо из
+    multipart-тела браузера.
     """
     return PurePosixPath(PureWindowsPath(name).name).suffix.lower()
 
 
 def sanitize_filename(name: str, *, fallback: str) -> str:
-    """Strip any directory component and control characters from ``name``."""
+    """Убрать из ``name`` любые компоненты пути и управляющие символы."""
     base = PurePosixPath(PureWindowsPath(name).name).name.translate(_UNSAFE_CHARS).strip()
     if not base or base in {".", ".."}:
         return fallback
@@ -27,5 +27,5 @@ def sanitize_filename(name: str, *, fallback: str) -> str:
 
 
 def guess_mime_type(name: str, *, default: str = "application/octet-stream") -> str:
-    """Best-effort MIME type for a filename, used when the client sends none."""
+    """MIME-тип по имени файла — на случай, если клиент его не прислал."""
     return mimetypes.guess_type(name)[0] or default

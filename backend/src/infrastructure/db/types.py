@@ -1,4 +1,4 @@
-"""Custom SQLAlchemy types bridging domain value objects and plain columns."""
+"""Свои типы SQLAlchemy, связывающие доменные value objects с обычными колонками."""
 
 from enum import StrEnum
 from typing import Any
@@ -8,11 +8,11 @@ from sqlalchemy.types import TypeDecorator
 
 
 class StrEnumType(TypeDecorator[StrEnum]):
-    """Stores a :class:`~enum.StrEnum` as a plain ``VARCHAR``.
+    """Хранит :class:`~enum.StrEnum` как обычный ``VARCHAR``.
 
-    Deliberately not ``sqlalchemy.Enum``: the existing columns are ``VARCHAR``
-    and must stay that way, and a native enum would make adding a status a
-    migration instead of a code change.
+    Намеренно не ``sqlalchemy.Enum``: существующие колонки — ``VARCHAR`` и
+    должны такими остаться, а нативный enum превратил бы добавление статуса из
+    правки кода в миграцию.
     """
 
     impl = String

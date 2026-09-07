@@ -1,12 +1,12 @@
-"""The asynchronous post-upload pipeline: scan -> extract metadata -> alert.
+"""Асинхронный конвейер после загрузки: сканирование -> метаданные -> алерт.
 
-Originally these were three Celery tasks that chained into each other, each one
-re-opening a database session and re-loading the same row.  They are three
-distinct business steps, so they stay three explicit steps here - but they run
-inside a single worker invocation and a single session, which removes two
-broker round-trips and two connection acquisitions per upload.  The commit
-boundaries are unchanged, so the intermediate states ("processing", scan
-verdict before metadata) remain observable exactly as before.
+Изначально это были три Celery-задачи, вызывавшие друг друга по цепочке, и
+каждая заново открывала сессию к базе и заново читала ту же строку. Это три
+разных бизнес-шага, поэтому здесь они остаются тремя явными шагами — но
+выполняются за один вызов воркера и на одной сессии, что убирает два обращения
+к брокеру и два взятия соединения на каждую загрузку. Границы коммитов не
+изменились, поэтому промежуточные состояния («processing», вердикт сканера до
+метаданных) наблюдаемы ровно как раньше.
 """
 
 import logging
@@ -44,8 +44,8 @@ class ProcessFileUseCase:
         async with self._uow_factory() as uow:
             file = await uow.files.get(file_id)
             if file is None:
-                # The file was deleted while the job sat in the queue: nothing
-                # to process and nothing to alert about.
+                # Файл удалили, пока задача лежала в очереди: обрабатывать
+                # нечего и алертить не о чем.
                 logger.warning("Skipping processing of unknown file %s", file_id)
                 return
 
@@ -70,8 +70,8 @@ class ProcessFileUseCase:
 
         analyzer = self._metadata_extractor.analyzer_for(file.mime_type)
         if analyzer is not None:
-            # Constant memory: the file is consumed chunk by chunk and never
-            # materialised in full.
+            # Постоянный расход памяти: файл читается чанк за чанком и целиком
+            # нигде не материализуется.
             async for chunk in self._storage.read_chunks(file.stored_name):
                 analyzer.feed(chunk)
             metadata.update(analyzer.result())

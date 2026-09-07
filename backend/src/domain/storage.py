@@ -1,4 +1,4 @@
-"""Binary storage port."""
+"""Порт бинарного хранилища."""
 
 from collections.abc import AsyncIterator
 from pathlib import Path
@@ -9,11 +9,11 @@ DEFAULT_CHUNK_SIZE = 1024 * 1024
 
 class FileStorage(Protocol):
     async def save(self, stored_name: str, chunks: AsyncIterator[bytes]) -> int:
-        """Persist ``chunks`` under ``stored_name`` and return the number of bytes written."""
+        """Сохранить ``chunks`` под именем ``stored_name`` и вернуть число записанных байт."""
         ...
 
     def read_chunks(self, stored_name: str, chunk_size: int | None = None) -> AsyncIterator[bytes]:
-        """Stream the stored object back."""
+        """Отдать сохранённый объект потоком."""
         ...
 
     async def delete(self, stored_name: str) -> None: ...
@@ -21,11 +21,11 @@ class FileStorage(Protocol):
     async def exists(self, stored_name: str) -> bool: ...
 
     def local_path(self, stored_name: str) -> Path | None:
-        """Filesystem path of the object, when the adapter is backed by a local disk.
+        """Путь к объекту в файловой системе, если адаптер работает поверх локального диска.
 
-        Purely an optimisation hook: it lets the HTTP layer hand the descriptor
-        to the kernel (``sendfile``) instead of pumping bytes through Python.
-        Adapters backed by a remote object store return ``None`` and callers
-        fall back to :meth:`read_chunks`.
+        Чисто оптимизационный хук: позволяет HTTP-слою отдать дескриптор ядру
+        (``sendfile``) вместо того, чтобы гнать байты через Python. Адаптеры
+        поверх удалённого объектного хранилища возвращают ``None``, и вызывающий
+        код откатывается на :meth:`read_chunks`.
         """
         ...

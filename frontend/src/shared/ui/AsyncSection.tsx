@@ -1,6 +1,6 @@
 import { Spinner } from "react-bootstrap";
 
-/** Renders a spinner while loading, otherwise the children. */
+/** Показывает спиннер во время загрузки, иначе — вложенное содержимое. */
 export function AsyncSection({ isLoading, children }: { isLoading: boolean; children: React.ReactNode }) {
   if (isLoading) {
     return (

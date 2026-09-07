@@ -1,4 +1,4 @@
-"""In-memory implementations of the application ports."""
+"""In-memory реализации портов приложения."""
 
 from collections.abc import AsyncIterator
 from pathlib import Path
@@ -9,7 +9,7 @@ from src.domain.repositories import AlertRepository, FileRepository
 
 
 class RecordingQueue:
-    """A :class:`~src.application.ports.FileProcessingQueue` that just remembers calls."""
+    """:class:`~src.application.ports.FileProcessingQueue`, который просто запоминает вызовы."""
 
     def __init__(self) -> None:
         self.enqueued: list[str] = []
@@ -19,7 +19,7 @@ class RecordingQueue:
 
 
 class InMemoryStorage:
-    """A :class:`~src.domain.storage.FileStorage` backed by a dict."""
+    """:class:`~src.domain.storage.FileStorage` поверх обычного словаря."""
 
     def __init__(self, chunk_size: int = 8) -> None:
         self.objects: dict[str, bytes] = {}
@@ -82,7 +82,7 @@ class InMemoryAlertRepository:
 
 
 class FakeUnitOfWork:
-    """Shares its state across instances so repeated ``uow_factory()`` calls see the same data."""
+    """Делит состояние между экземплярами, чтобы повторные вызовы ``uow_factory()`` видели те же данные."""
 
     files: FileRepository
     alerts: AlertRepository

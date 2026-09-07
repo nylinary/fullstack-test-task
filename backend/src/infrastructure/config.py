@@ -1,7 +1,7 @@
-"""Typed application settings.
+"""Типизированные настройки приложения.
 
-Replaces the scattered ``os.environ.get(...)`` calls, which silently produced a
-DSN containing the literal string ``None`` when a variable was missing.
+Заменяют разбросанные вызовы ``os.environ.get(...)``, которые при отсутствующей
+переменной молча собирали DSN со строкой ``None`` внутри.
 """
 
 from functools import lru_cache
@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
 
     postgres_user: str = "postgres"
-    postgres_password: str = "postgres"  # noqa: S105 - local-dev fallback, overridden by the environment
+    postgres_password: str = "postgres"  # noqa: S105 - значение для локальной разработки, перекрывается окружением
     postgres_db: str = "test"
     postgres_host: str = "backend-db"
     pgport: int = 5432

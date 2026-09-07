@@ -1,8 +1,8 @@
-"""Bridges Celery's synchronous worker to the async application layer.
+"""Мост между синхронным воркером Celery и асинхронным слоем приложения.
 
-One :class:`asyncio.Runner` is kept alive for the lifetime of the worker
-process, so the asyncpg connection pool is reused across tasks instead of being
-rebuilt - or, worse, bound to an event loop that has already been closed.
+Один :class:`asyncio.Runner` живёт всё время жизни процесса воркера, поэтому пул
+соединений asyncpg переиспользуется между задачами, а не пересоздаётся — и, что
+хуже, не привязывается к уже закрытому event loop'у.
 """
 
 import asyncio
@@ -11,7 +11,7 @@ from typing import Any
 
 
 class WorkerLoop:
-    """Owns the worker's event loop; created lazily on the first task."""
+    """Владеет event loop'ом воркера; создаётся лениво на первой задаче."""
 
     def __init__(self) -> None:
         self._runner: asyncio.Runner | None = None

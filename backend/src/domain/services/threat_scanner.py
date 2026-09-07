@@ -1,7 +1,7 @@
-"""Threat scanning rules.
+"""Правила проверки на угрозы.
 
-Pure business logic: it only needs the declared metadata of an upload, never
-its bytes, which is why scanning does not touch the filesystem at all.
+Чистая бизнес-логика: нужны только заявленные метаданные загрузки, но не её
+байты — поэтому сканирование вообще не обращается к файловой системе.
 """
 
 from collections.abc import Iterator

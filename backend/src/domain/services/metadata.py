@@ -1,10 +1,10 @@
-"""Metadata extraction rules.
+"""Правила извлечения метаданных.
 
-The original implementation loaded whole files into memory
-(``read_text()`` / ``read_bytes()``) just to count lines, characters and PDF
-pages.  The analyzers below consume the file as a stream of chunks and keep a
-constant amount of state, so peak memory no longer scales with file size while
-the produced metadata stays byte-for-byte identical.
+Исходная реализация целиком загружала файл в память (``read_text()`` /
+``read_bytes()``) только ради подсчёта строк, символов и страниц PDF.
+Анализаторы ниже читают файл потоком по чанкам и хранят постоянный объём
+состояния: пиковая память больше не зависит от размера файла, а получаемые
+метаданные совпадают байт в байт.
 """
 
 from codecs import getincrementaldecoder
@@ -16,17 +16,17 @@ from src.domain.services.naming import file_extension
 TEXT_MIME_PREFIX = "text/"
 PDF_MIME_TYPE = "application/pdf"
 
-# Byte sequence Adobe uses to introduce a page object.  Counting it is a rough
-# but cheap approximation of the page count - kept from the original code.
+# Последовательность байт, которой Adobe открывает объект страницы. Её подсчёт —
+# грубая, но дешёвая оценка числа страниц; оставлена из исходного кода.
 _PDF_PAGE_MARKER = b"/Type /Page"
 
-# The exact set of characters ``str.splitlines()`` treats as a line boundary.
+# Ровно тот набор символов, который ``str.splitlines()`` считает границей строки.
 _LINE_BOUNDARIES = frozenset("\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029")
 
 
 @runtime_checkable
 class ContentAnalyzer(Protocol):
-    """Incrementally derives metadata from the raw bytes of a file."""
+    """Инкрементально выводит метаданные из сырых байт файла."""
 
     def feed(self, chunk: bytes) -> None: ...
 
@@ -34,11 +34,11 @@ class ContentAnalyzer(Protocol):
 
 
 class TextContentAnalyzer:
-    """Counts lines and characters exactly like ``len(text.splitlines())``/``len(text)``.
+    """Считает строки и символы ровно как ``len(text.splitlines())`` и ``len(text)``.
 
-    UTF-8 is decoded incrementally so that a multi-byte character split across
-    two chunks is still decoded as one character, and a ``\\r\\n`` pair split
-    across two chunks is still counted as a single line break.
+    UTF-8 декодируется инкрементально, поэтому многобайтовый символ, разорванный
+    границей чанков, всё равно декодируется как один символ, а пара ``\\r\\n``,
+    разорванная границей, всё равно считается одним переводом строки.
     """
 
     def __init__(self, encoding: str = "utf-8", errors: str = "ignore") -> None:
@@ -62,9 +62,9 @@ class TextContentAnalyzer:
             return
 
         tail = parts[-1]
-        # The tail is incomplete when it is not terminated by a boundary, and
-        # also when it ends with a bare "\r": the next chunk may start with a
-        # "\n" that turns it into a single CRLF break.
+        # Хвост неполон, если он не заканчивается границей строки, а также если
+        # он оканчивается одиночным "\r": следующий чанк может начаться с "\n",
+        # и вместе они дадут один перевод строки CRLF.
         if tail[-1] not in _LINE_BOUNDARIES or tail.endswith("\r"):
             self._pending = tail
             parts = parts[:-1]
@@ -78,7 +78,7 @@ class TextContentAnalyzer:
 
 
 class PdfContentAnalyzer:
-    """Approximates a page count by counting page markers across chunk boundaries."""
+    """Оценивает число страниц, считая маркеры страниц через границы чанков."""
 
     def __init__(self) -> None:
         self._pages = 0
@@ -89,8 +89,9 @@ class PdfContentAnalyzer:
             return
         buffer = self._overlap + chunk
         self._pages += buffer.count(_PDF_PAGE_MARKER)
-        # Keep just enough bytes for a marker that straddles two chunks; a full
-        # marker can never fit in the overlap, so nothing is counted twice.
+        # Оставляем ровно столько байт, сколько нужно маркеру на стыке двух
+        # чанков; целиком маркер в перекрытие не помещается, поэтому дважды
+        # ничего не посчитается.
         self._overlap = buffer[-(len(_PDF_PAGE_MARKER) - 1) :]
 
     def result(self) -> dict[str, Any]:
@@ -98,7 +99,7 @@ class PdfContentAnalyzer:
 
 
 class MetadataExtractor:
-    """Decides *what* to derive from a file; the caller supplies the bytes."""
+    """Решает, *что* извлекать из файла; байты подаёт вызывающий код."""
 
     def base_metadata(self, file: StoredFile) -> dict[str, Any]:
         return {
@@ -108,9 +109,9 @@ class MetadataExtractor:
         }
 
     def analyzer_for(self, mime_type: str) -> ContentAnalyzer | None:
-        """Return an analyzer for ``mime_type``, or ``None`` when the bytes are irrelevant.
+        """Вернуть анализатор для ``mime_type`` или ``None``, если байты не нужны.
 
-        Returning ``None`` lets the caller skip reading the file entirely.
+        ``None`` позволяет вызывающему коду вовсе не читать файл.
         """
         if mime_type.startswith(TEXT_MIME_PREFIX):
             return TextContentAnalyzer()

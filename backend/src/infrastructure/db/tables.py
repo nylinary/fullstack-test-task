@@ -1,9 +1,9 @@
-"""Table definitions and the imperative mapping onto the domain entities.
+"""Определения таблиц и imperative mapping на доменные сущности.
 
-Using SQLAlchemy's *imperative* (classical) mapping instead of the declarative
-base keeps the persistence schema here and the business rules in
-:mod:`src.domain.entities`, without the duplication of a separate ORM model plus
-a hand-written mapper.  Alembic still autogenerates from ``metadata``.
+*Imperative* (классический) маппинг вместо declarative base оставляет схему
+хранения здесь, а бизнес-правила — в :mod:`src.domain.entities`, и при этом не
+появляется дублирующей ORM-модели с ручным маппером. Alembic по-прежнему
+автогенерирует миграции из ``metadata``.
 """
 
 from sqlalchemy import (
@@ -44,8 +44,8 @@ files_table = Table(
     Column("requires_attention", Boolean, nullable=False, default=False),
     Column("created_at", DateTime(timezone=True), server_default=func.now(), nullable=False),
     Column("updated_at", DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False),
-    # The listing is always "newest first"; without this index every page is a
-    # full scan plus a sort.
+    # Список всегда «сначала новые»; без этого индекса каждая страница — полное
+    # сканирование плюс сортировка.
     Index("ix_files_created_at_id", "created_at", "id"),
 )
 
@@ -57,21 +57,21 @@ alerts_table = Table(
     Column("level", StrEnumType(AlertLevel, 50), nullable=False),
     Column("message", String(500), nullable=False),
     Column("created_at", DateTime(timezone=True), server_default=func.now(), nullable=False),
-    # Postgres does not index foreign keys automatically, so deleting a file had
-    # to scan the whole alerts table to check the constraint.
+    # Postgres не индексирует внешние ключи автоматически, поэтому при удалении
+    # файла проверка ограничения сканировала всю таблицу алертов.
     Index("ix_alerts_file_id", "file_id"),
     Index("ix_alerts_created_at_id", "created_at", "id"),
 )
 
 
 def configure_mappings() -> None:
-    """Bind the domain entities to their tables (idempotent)."""
+    """Привязать доменные сущности к их таблицам (идемпотентно)."""
     if not mapper_registry.mappers:
-        # ``eager_defaults`` makes SQLAlchemy fetch server-generated columns
-        # (created_at / updated_at) via RETURNING as part of the INSERT or
-        # UPDATE, instead of leaving them expired and needing an extra
-        # round-trip refresh - which is what the original code paid for on
-        # every write.
+        # ``eager_defaults`` заставляет SQLAlchemy забирать колонки, которые
+        # генерирует база (created_at / updated_at), через RETURNING прямо в
+        # INSERT или UPDATE — вместо того чтобы оставлять их протухшими и делать
+        # лишний refresh отдельным запросом, как платил исходный код на каждой
+        # записи.
         mapper_registry.map_imperatively(StoredFile, files_table, eager_defaults=True)
         mapper_registry.map_imperatively(Alert, alerts_table, eager_defaults=True)
 

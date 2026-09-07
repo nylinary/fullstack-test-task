@@ -1,4 +1,4 @@
-"""HTTP contract tests driven through the real FastAPI app."""
+"""Тесты HTTP-контракта, прогоняемые через настоящее приложение FastAPI."""
 
 from collections.abc import AsyncIterator
 

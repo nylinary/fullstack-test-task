@@ -1,7 +1,8 @@
-"""Executable version of the dependency rule.
+"""Исполняемая версия правила зависимостей.
 
-Clean architecture is only worth something if it is enforced, so the layering
-is asserted rather than described: inner layers must not import outer ones.
+Clean architecture чего-то стоит, только если её соблюдение проверяется, поэтому
+слои здесь не описаны, а утверждены: внутренние слои не должны импортировать
+внешние.
 """
 
 import ast
@@ -13,7 +14,7 @@ SRC = Path(__file__).resolve().parents[2] / "src"
 
 FRAMEWORKS = ("sqlalchemy", "fastapi", "starlette", "celery", "anyio")
 
-# layer package -> module prefixes it must never import
+# пакет слоя -> префиксы модулей, которые он не должен импортировать никогда
 FORBIDDEN_IMPORTS = {
     "domain": (*FRAMEWORKS, "pydantic", "src.application", "src.infrastructure", "src.presentation"),
     "application": (*FRAMEWORKS, "src.infrastructure", "src.presentation"),

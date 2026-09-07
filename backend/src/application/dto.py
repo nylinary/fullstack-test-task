@@ -1,4 +1,4 @@
-"""Data carried across the application boundary."""
+"""Данные, пересекающие границу слоя приложения."""
 
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
@@ -26,7 +26,7 @@ class UploadFileCommand:
 
 @dataclass(slots=True)
 class FileDownload:
-    """Everything the transport needs to serve a stored file."""
+    """Всё, что нужно транспорту, чтобы отдать сохранённый файл."""
 
     file: StoredFile
     open_stream: Callable[[], AsyncIterator[bytes]]

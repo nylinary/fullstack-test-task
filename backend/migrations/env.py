@@ -1,8 +1,8 @@
-"""Alembic environment.
+"""Окружение Alembic.
 
-Autogeneration targets the metadata declared in
-:mod:`src.infrastructure.db.tables`; the URL comes from the same typed settings
-the application uses, so the two can never drift apart.
+Автогенерация опирается на метаданные из :mod:`src.infrastructure.db.tables`, а
+URL берётся из тех же типизированных настроек, что и у приложения, — поэтому
+разъехаться они не могут.
 """
 
 import asyncio
@@ -26,7 +26,7 @@ target_metadata = metadata
 
 
 def run_migrations_offline() -> None:
-    """Run migrations without a DBAPI connection, emitting SQL to stdout."""
+    """Прогнать миграции без подключения к БД, выводя SQL в stdout."""
     context.configure(
         url=config.get_main_option("sqlalchemy.url"),
         target_metadata=target_metadata,

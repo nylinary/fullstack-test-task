@@ -1,7 +1,7 @@
-"""Shared fixtures.
+"""Общие фикстуры.
 
-The suite never needs Postgres or Redis: the domain and application layers only
-know about ports, so tests plug in SQLite and in-memory doubles.
+Набору тестов не нужны ни Postgres, ни Redis: домен и слой приложения знают
+только про порты, поэтому тесты подставляют SQLite и in-memory заглушки.
 """
 
 import sqlite3
@@ -31,8 +31,8 @@ async def engine(tmp_path: Path) -> AsyncIterator[AsyncEngine]:
 
     @event.listens_for(engine.sync_engine, "connect")
     def _enable_foreign_keys(connection: sqlite3.Connection, _: object) -> None:
-        # SQLite ignores foreign keys unless asked, and we want the
-        # ON DELETE CASCADE behaviour to be exercised here too.
+        # SQLite игнорирует внешние ключи, пока его не попросишь, а нам нужно
+        # проверить в том числе поведение ON DELETE CASCADE.
         connection.execute("PRAGMA foreign_keys=ON")
 
     async with engine.begin() as connection:
@@ -50,8 +50,9 @@ def queue() -> RecordingQueue:
 @pytest.fixture
 def container(settings: Settings, engine: AsyncEngine, queue: RecordingQueue) -> Container:
     container = Container(settings=settings)
-    # ``cached_property`` reads through ``__dict__``: seeding it swaps the real
-    # Postgres engine and Celery broker for test doubles without any patching.
+    # ``cached_property`` читает через ``__dict__``: заполнив его заранее, мы
+    # подменяем настоящие Postgres и брокер Celery на заглушки без всякого
+    # патчинга.
     container.__dict__["engine"] = engine
     container.__dict__["session_factory"] = create_session_factory(engine)
     container.__dict__["storage"] = LocalFileStorage(settings.storage_dir)

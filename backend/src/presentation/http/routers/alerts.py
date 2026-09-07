@@ -1,4 +1,4 @@
-"""HTTP endpoints for the alert feed."""
+"""HTTP-эндпоинты ленты алертов."""
 
 from typing import Annotated
 

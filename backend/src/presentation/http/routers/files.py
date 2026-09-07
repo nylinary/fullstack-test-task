@@ -1,4 +1,4 @@
-"""HTTP endpoints for files: parse, delegate, serialise. No business rules here."""
+"""HTTP-эндпоинты для файлов: разобрать, делегировать, сериализовать. Бизнес-правил здесь нет."""
 
 from collections.abc import AsyncIterator
 from typing import Annotated
@@ -33,7 +33,7 @@ NOT_FOUND: dict[int | str, dict[str, type[ErrorResponse]]] = {404: {"model": Err
 
 
 async def _iter_upload(upload: UploadFile, chunk_size: int = DEFAULT_CHUNK_SIZE) -> AsyncIterator[bytes]:
-    """Yield the upload in chunks instead of materialising it in memory."""
+    """Отдавать загрузку чанками, а не материализовать её в памяти."""
     while chunk := await upload.read(chunk_size):
         yield chunk
 
@@ -90,7 +90,7 @@ async def download_file(
     headers = {"Content-Length": str(download.file.size)}
 
     if download.local_path is not None:
-        # Local disk: let the kernel send the file, no bytes through Python.
+        # Локальный диск: отдать файл силами ядра, не гоняя байты через Python.
         return FileResponse(
             path=download.local_path,
             media_type=download.file.mime_type,

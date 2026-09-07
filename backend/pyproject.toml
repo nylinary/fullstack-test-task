@@ -13,8 +13,8 @@ dependencies = [
     "pydantic>=2.12.5",
     "pydantic-settings>=2.7.0",
     "python-multipart>=0.0.20",
-    # the [asyncio] extra pulls in greenlet, without which every async query
-    # raises "the greenlet library is required"
+    # экстра [asyncio] тянет greenlet, без которого любой async-запрос падает с
+    # "the greenlet library is required"
     "sqlalchemy[asyncio]>=2.0.48",
     "uvicorn>=0.42.0",
 ]
@@ -31,7 +31,7 @@ dev = [
 
 [tool.uv]
 default-groups = ["dev"]
-# The service is run from the source tree, not installed as a distribution.
+# Сервис запускается из дерева исходников, а не устанавливается как дистрибутив.
 package = false
 
 # ---------------------------------------------------------------------------
@@ -67,9 +67,14 @@ select = [
     "RUF",
 ]
 ignore = [
-    "ANN401",  # Any is required by a few adapter signatures
-    "PLR0913", # use cases legitimately take several collaborators
-    "S104",    # binding 0.0.0.0 inside a container is intentional
+    "ANN401",  # Any нужен в сигнатурах нескольких адаптеров
+    "PLR0913", # use case'ы обоснованно принимают несколько зависимостей
+    "S104",    # привязка к 0.0.0.0 внутри контейнера сделана намеренно
+    # Документация и комментарии на русском, поэтому проверка на омоглифы
+    # (кириллические буквы, похожие на латинские) даёт только ложные срабатывания.
+    "RUF001",  # неоднозначные символы в идентификаторах и строках
+    "RUF002",  # то же в докстрингах
+    "RUF003",  # то же в комментариях
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -90,8 +95,8 @@ line-ending = "lf"
 # ---------------------------------------------------------------------------
 [tool.ty.environment]
 python-version = "3.14"
-# Imports are absolute from the project root ("src.domain...."), so the root
-# is the directory that *contains* the src package.
+# Импорты абсолютные от корня проекта ("src.domain...."), поэтому корень — это
+# директория, *содержащая* пакет src.
 root = ["."]
 
 [tool.ty.src]

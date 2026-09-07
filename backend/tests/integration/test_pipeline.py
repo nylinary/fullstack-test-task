@@ -1,4 +1,4 @@
-"""End-to-end exercise of the real adapters: SQLAlchemy, local disk, use cases."""
+"""Сквозная проверка настоящих адаптеров: SQLAlchemy, локальный диск, use case'ы."""
 
 import pytest
 
@@ -65,7 +65,7 @@ async def test_missing_blob_fails_the_file_and_raises_a_critical_alert(container
     file = await container.get_file().execute(file_id)
     assert file.processing_status is ProcessingStatus.FAILED
     assert file.scan_details == "stored file not found during metadata extraction"
-    # The clean verdict from the scan step survives; only processing failed.
+    # Вердикт «чисто» от шага сканирования сохраняется; упала только обработка.
     assert file.scan_status is ScanStatus.CLEAN
 
     (alert,) = await container.list_alerts().execute(Page())
@@ -107,13 +107,13 @@ async def test_rename_and_delete(container: Container) -> None:
     renamed = await container.rename_file().execute(file_id, "  New name  ")
     assert renamed.title == "New name"
 
-    await container.process_file().execute(file_id)  # produces an alert referencing the file
+    await container.process_file().execute(file_id)  # создаёт алерт, ссылающийся на файл
     await container.delete_file().execute(file_id)
 
     assert await container.storage.exists(stored_name) is False
     with pytest.raises(StoredFileNotFoundError):
         await container.get_file().execute(file_id)
-    # The FK now cascades, so deleting an already-alerted file no longer fails.
+    # Внешний ключ теперь каскадный, поэтому удаление файла с алертом не падает.
     assert await container.list_alerts().execute(Page()) == []
 
 

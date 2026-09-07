@@ -1,6 +1,6 @@
-"""FastAPI dependency providers.
+"""Провайдеры зависимостей FastAPI.
 
-Routers ask for a use case, never for a session, an engine or a Celery app.
+Роутеры просят use case, а не сессию, engine или приложение Celery.
 """
 
 from typing import Annotated

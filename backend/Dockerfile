@@ -12,14 +12,14 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
 
-# alembic.ini and migrations/ are part of the image so that
-# `alembic upgrade head` works without a bind mount.
+# alembic.ini и migrations/ лежат в образе, чтобы `alembic upgrade head`
+# работал без bind mount'а.
 COPY alembic.ini ./
 COPY migrations ./migrations
 COPY src ./src
 
-# The storage directory is created at startup by the storage adapter; make sure
-# the unprivileged user owns it.
+# Директорию хранилища создаёт при старте адаптер; следим, чтобы она
+# принадлежала непривилегированному пользователю.
 RUN useradd --create-home --uid 1000 app \
     && mkdir -p /backend/storage/files \
     && chown -R app:app /backend

@@ -1,13 +1,14 @@
 """add listing indexes and cascade alerts on file delete
 
-Two problems this fixes:
+Исправляет две проблемы:
 
-* ``GET /files`` and ``GET /alerts`` sort by ``created_at DESC`` with no
-  supporting index, so every request was a sequential scan plus a sort.
-* ``alerts.file_id`` had no index (Postgres does not create one for a foreign
-  key), which made the referential check on ``DELETE FROM files`` scan the whole
-  alerts table - and, because the constraint had no ``ON DELETE`` action,
-  deleting a file that had already produced an alert failed outright.
+* ``GET /files`` и ``GET /alerts`` сортируют по ``created_at DESC``, и ни одного
+  подходящего индекса не было — каждый запрос означал последовательное
+  сканирование плюс сортировку.
+* У ``alerts.file_id`` не было индекса (Postgres не создаёт его для внешнего
+  ключа), поэтому проверка ссылочной целостности при ``DELETE FROM files``
+  сканировала всю таблицу алертов. А поскольку у ограничения не было действия
+  ``ON DELETE``, удаление файла, по которому уже был алерт, просто падало.
 
 Revision ID: a1c4f2b7e903
 Revises: 0d6439d2e79f

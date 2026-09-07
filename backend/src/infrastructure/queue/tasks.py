@@ -1,4 +1,4 @@
-"""Celery tasks: thin adapters that hand off to a use case."""
+"""Задачи Celery: тонкие адаптеры, передающие управление use case'у."""
 
 import logging
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(name=PROCESS_FILE_TASK)
 def process_file(file_id: str) -> None:
-    """Run the scan -> metadata -> alert pipeline for one uploaded file."""
+    """Прогнать конвейер сканирование -> метаданные -> алерт для одного файла."""
     worker_loop.run(get_container().process_file().execute(file_id))
 
 
