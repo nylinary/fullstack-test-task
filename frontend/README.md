@@ -1,57 +1,57 @@
-# Frontend
+# Фронтенд
 
-Next.js (App Router) dashboard for the file exchange service.
+Дашборд файлообменника на Next.js (App Router).
 
-## Layers
+## Слои
 
-The page used to be a single 400-line `page.tsx` holding types, formatting,
-status-to-colour mapping, `fetch` calls, error handling and markup. It is now
-split along [Feature-Sliced Design](https://feature-sliced.design) lines, with
-imports only ever pointing **downwards**:
+Раньше это был один `page.tsx` на 400 строк, в котором лежали типы,
+форматирование, маппинг статусов в цвета, вызовы `fetch`, обработка ошибок и
+разметка. Теперь всё разбито по [Feature-Sliced Design](https://feature-sliced.design),
+и импорты идут строго **вниз**:
 
 ```
-app/       Next.js routing and the root layout - nothing else
+app/       роутинг Next.js и корневой layout — больше ничего
   ↓
-views/     a whole screen: files-dashboard (data flow in model/, layout in ui/)
+views/     целый экран: files-dashboard (поток данных в model/, вёрстка в ui/)
   ↓
-widgets/   self-contained blocks: file-table, alert-table
+widgets/   самодостаточные блоки: file-table, alert-table
   ↓
-features/  a user action with its own state: upload-file
+features/  пользовательское действие со своим состоянием: upload-file
   ↓
-entities/  a business object: file, alert - its type, its API calls, its display rules
+entities/  бизнес-объект: file, alert — его тип, его вызовы API, его правила отображения
   ↓
-shared/    reusable and domain-agnostic: http client, config, formatters, UI primitives
+shared/    переиспользуемое и не знающее о домене: HTTP-клиент, конфиг, форматтеры, UI-примитивы
 ```
 
-| Slice | Responsibility |
+| Слайс | Зона ответственности |
 | --- | --- |
-| `shared/config/env.ts` | the API origin, read from `NEXT_PUBLIC_API_URL` instead of `http://localhost:8000` hard-coded in the page |
-| `shared/api/http.ts` | the only module that knows how this API reports failures - checks `response.ok`, reads `detail`, throws `ApiError` |
+| `shared/config/env.ts` | origin API из `NEXT_PUBLIC_API_URL` вместо зашитого в страницу `http://localhost:8000` |
+| `shared/api/http.ts` | единственный модуль, который знает, как этот API сообщает об ошибках: проверяет `response.ok`, читает `detail`, бросает `ApiError` |
 | `shared/lib/format.ts` | `formatDate`, `formatSize` |
-| `shared/ui/` | `DataTable`, `SectionCard`, `AsyncSection`, `StatusBadge` - the table/card/spinner markup that was duplicated between the two tables |
-| `entities/file`, `entities/alert` | types, endpoint calls, and the status → badge-variant mapping |
-| `features/upload-file` | `useUploadFile` owns the form state and the submit workflow; `UploadFileModal` renders it |
-| `views/files-dashboard` | `useFilesDashboard` owns loading, errors and refresh; `FilesDashboard` is layout only |
+| `shared/ui/` | `DataTable`, `SectionCard`, `AsyncSection`, `StatusBadge` — разметка таблиц, карточек и спиннеров, дублировавшаяся между двумя таблицами |
+| `entities/file`, `entities/alert` | типы, вызовы эндпоинтов и маппинг статуса в вариант бейджа |
+| `features/upload-file` | `useUploadFile` держит состояние формы и сценарий отправки, `UploadFileModal` его рисует |
+| `views/files-dashboard` | `useFilesDashboard` держит загрузку, ошибки и обновление, `FilesDashboard` — только вёрстка |
 
-`@/*` maps to `src/*` (see `tsconfig.json`).
+`@/*` указывает на `src/*` (см. `tsconfig.json`).
 
-## Changes beyond the split
+## Что изменилось помимо разбиения
 
-- `strict: true` in `tsconfig.json` (it was `false`), plus `noUncheckedIndexedAccess`
-  and `noUnusedLocals`.
-- The Docker build was broken: it copied `/app/.env.production`, a file that is not
-  in the repository, so `docker compose build frontend` failed outright.
-- `next: "latest"` and the other floating ranges are pinned to the versions in
-  `package-lock.json`, so a build is reproducible.
-- The favicon pointed at `/public/favicon.ico`, which is not a served path. Next
-  serves `public/favicon.ico` itself, and now does.
-- Errors from the upload form are shown inside the modal rather than behind it.
-- Processing happens in a background worker, so a freshly uploaded file is still
-  `uploaded` when the response arrives. The dashboard now polls quietly (2 s)
-  while any file is unfinished and stops once everything has settled, instead of
-  leaving the user to press *Обновить*.
+- `strict: true` в `tsconfig.json` (было `false`), плюс `noUncheckedIndexedAccess`
+  и `noUnusedLocals`.
+- Сборка Docker была сломана: она копировала `/app/.env.production` — файл,
+  которого нет в репозитории, — поэтому `docker compose build frontend` падал.
+- `next: "latest"` и остальные плавающие диапазоны зафиксированы по версиям из
+  `package-lock.json`, чтобы сборка была воспроизводимой.
+- Иконка ссылалась на `/public/favicon.ico` — такого пути не существует. Next
+  раздаёт `public/favicon.ico` сам, теперь так и происходит.
+- Ошибки формы загрузки показываются внутри модалки, а не за ней.
+- Обработка идёт в фоновом воркере, поэтому только что загруженный файл в момент
+  ответа ещё имеет статус `uploaded`. Дашборд теперь тихо опрашивает бэкенд
+  (раз в 2 с), пока есть незавершённые файлы, и перестаёт, когда всё
+  обработано, — вместо того чтобы оставлять пользователя жать *Обновить*.
 
-## Development
+## Разработка
 
 ```bash
 npm install
@@ -60,4 +60,4 @@ npm run typecheck
 npm run build
 ```
 
-Requires Node 20.9+ (Next 16).
+Нужен Node 20.9+ (Next 16).
